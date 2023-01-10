@@ -1,0 +1,114 @@
+{
+  "AS": [
+    {
+      "number": "100",
+      "IpRange": {
+        "start": "2020:100:1:",
+        "prefix": "64",
+        "number": "10"
+      },
+      "IpLoopbackRange": {
+        "start": "fe01:1:",
+        "prefix": "64"
+      },
+      "igp": {
+        "type": "rip",
+        "routerID": "1.1.1.",
+        "passiveInterfaces": []
+      },
+      "bgp": {
+        "routerID": "1.1.1."
+      },
+      "baseHostname": "R111",
+      "routers": [
+        {
+          "id": "1",
+          "connections":[
+            {
+              "router": "2",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "4",
+              "interface": "2",
+              "OspfCost": "1"
+            }
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "2",
+          "connections":[
+            {
+              "router": "1",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "3",
+              "interface": "3",
+              "OspfCost": "1"
+            },
+            {
+              "router": "4",
+              "interface": "1",
+              "OspfCost": "1"
+            }
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "ASLink":{
+    "IpRange":{
+      "start": "2020:100:3:",
+      "Prefix": "64"
+    },
+    "links":[
+      {
+        "firstAS": "100",
+        "firstRouter": "6",
+        "firstInterface": "3",
+        "secondAS": "200",
+        "secondRouter": "6",
+        "secondInterface": "3",
+        "relationship": "peer"
+      },
+      {
+        "firstAS": "100",
+        "firstRouter": "7",
+        "firstInterface": "3",
+        "secondAS": "200",
+        "secondRouter": "7",
+        "secondInterface": "3",
+        "relationship": "peer"
+      }
+    ]
+  }
+}
