@@ -14,13 +14,15 @@ def handle_network(network):
 
             routerObj = Router()
             routerObj.hostname = As['baseHostname']+router['id']
+            
+            #Loopback
             intLoopback = Interface()
             intLoopback.name = 'Loopback0'
             intLoopback.add = As['IpLoopbackRange']['start']+router['id']+"::"+router['id']
             intLoopback.prefix = As['IpLoopbackRange']['prefix']
             routerObj.loopback = intLoopback
 
-
+            #Interface
             routerObj.interfaces = []
             for connection in router['connections']:
                 int = Interface()
@@ -58,7 +60,7 @@ def handle_network(network):
 
                 routerObj.interfaces.append(int)
 
-
+            #igp
             if(As['igp']['type'] == 'ospf'):
                 ospf = Igp()
                 ospf.process = router['id']
@@ -74,7 +76,8 @@ def handle_network(network):
                 for interface in As['igp']['passiveInterfaces']:
                     rip.passiveInterfaces.append("GigabitEthernet"+interface+"/0")
                 routerObj.rip = rip
-
+            
+            #iBGP
             bgp = Igp()
             bgp.as_number = As['number']
             bgp.routerId = As['bgp']['routerID']+router['id']
@@ -95,7 +98,7 @@ def handle_network(network):
 
 
             routerList.append(routerObj)
-
+        #eBGP
         for routeur in routerList:
             routeur.bgp.networks = []
             if routeur.bgp.out.network == "as":
