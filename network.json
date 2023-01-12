@@ -13,8 +13,7 @@
       },
       "igp": {
         "type": "rip",
-        "routerID": "1.1.1.",
-        "passiveInterfaces": []
+        "routerID": "1.1.1."
       },
       "bgp": {
         "routerID": "1.1.1."
@@ -81,6 +80,402 @@
               }
             }
           }
+        },
+        {
+          "id": "3",
+          "connections":[
+            {
+              "router": "2",
+              "interface": "4"
+            },
+            {
+              "router": "5",
+              "interface": "3"
+            },
+            {
+              "router": "6",
+              "interface": "1"
+            },
+            {
+              "router": "7",
+              "interface": "2"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "4",
+          "connections":[
+            {
+              "router": "2",
+              "interface": "1"
+            },
+            {
+              "router": "5",
+              "interface": "3"
+            },
+            {
+              "router": "1",
+              "interface": "2"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },{
+          "id": "5",
+          "connections":[
+            {
+              "router": "4",
+              "interface": "4"
+            },
+            {
+              "router": "3",
+              "interface": "3"
+            },
+            {
+              "router": "6",
+              "interface": "2"
+            },
+            {
+              "router": "7",
+              "interface": "1"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "6",
+          "connections":[
+            {
+              "router": "3",
+              "interface": "1"
+            },
+            {
+              "router": "5",
+              "interface": "2"
+            }
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "as",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "7",
+          "connections":[
+            {
+              "router": "5",
+              "interface": "1"
+            },
+            {
+              "router": "3",
+              "interface": "2"
+            }
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "as",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "number": "200",
+      "IpRange": {
+        "start": "2020:100:2:",
+        "prefix": "64",
+        "number": "10"
+      },
+      "IpLoopbackRange": {
+        "start": "fe01:2:",
+        "prefix": "64"
+      },
+      "igp": {
+        "type": "ospf",
+        "routerID": "2.2.2."
+      },
+      "bgp": {
+        "routerID": "2.2.2."
+      },
+      "baseHostname": "R222",
+      "routers": [
+        {
+          "id": "1",
+          "connections":[
+            {
+              "router": "2",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "4",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            }
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "2",
+          "connections":[
+            {
+              "router": "1",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "3",
+              "interface": "3",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "4",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            }
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "3",
+          "connections":[
+            {
+              "router": "2",
+              "interface": "4",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "5",
+              "interface": "3",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "6",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "7",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "4",
+          "connections":[
+            {
+              "router": "2",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "5",
+              "interface": "3",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "1",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },{
+          "id": "5",
+          "connections":[
+            {
+              "router": "4",
+              "interface": "4",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "3",
+              "interface": "3",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "6",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "7",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "6",
+          "connections":[
+            {
+              "router": "3",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "5",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "as",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        },
+        {
+          "id": "7",
+          "connections":[
+            {
+              "router": "5",
+              "interface": "1",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            },
+            {
+              "router": "3",
+              "interface": "2",
+              "ospfArea": "0",
+              "ospfCost": "1"
+            }
+          ],
+          "bgp": {
+            "out": {
+              "networks": "as",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
         }
       ]
     }
@@ -88,27 +483,55 @@
   "ASLink":{
     "IpRange":{
       "start": "2020:100:3:",
-      "Prefix": "64"
+      "prefix": "64"
     },
     "links":[
       {
         "firstAS": "100",
         "firstRouter": "6",
-        "firstInterface": "3",
+        "firstInterface":{
+            "id": "3"
+        },
         "secondAS": "200",
         "secondRouter": "6",
-        "secondInterface": "3",
+        "secondInterface":{
+            "id": "3",
+            "ospfArea": "0",
+            "ospfCost": "1"
+        },
         "relationship": "peer"
       },
       {
         "firstAS": "100",
         "firstRouter": "7",
-        "firstInterface": "3",
+        "firstInterface":{
+            "id": "3"
+        },
         "secondAS": "200",
         "secondRouter": "7",
-        "secondInterface": "3",
+        "secondInterface":{
+            "id": "3",
+            "ospfArea": "0",
+            "ospfCost": "1"
+        },
         "relationship": "peer"
       }
     ]
+  },
+  "routerMap": {
+    "R1111": 1,
+    "R1112": 2,
+    "R1113": 3,
+    "R1114": 4,
+    "R1115": 5,
+    "R1116": 6,
+    "R1117": 7,
+    "R2221": 8,
+    "R2222": 9,
+    "R2223": 11,
+    "R2224": 10,
+    "R2225": 12,
+    "R2226": 13,
+    "R2227": 14
   }
 }

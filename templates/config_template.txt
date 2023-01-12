@@ -22,7 +22,7 @@ interface {{ router.loopback.name }}
  ipv6 rip {{router.rip.process}} enable
 {% endif %}
 {% if router.loopback.ospf %}
- ipv6 ospf {{ router.ospf.process }} area {{ router.loopback.ospf.area }}
+ ipv6 ospf {{ router.ospf.process }} area {{ router.loopback.ospfArea }}
 {%endif%}
 {%endif%}
 {% for interface in router.interfaces %}
@@ -45,7 +45,7 @@ router bgp {{router.bgp.as_number}}
  no bgp default ipv4-unicast
  {% for neighbor in router.bgp.neighbors %}
  neighbor {{neighbor.ipAdd}} remote-as {{neighbor.remote_as}}
-  {% if router.loopback %}
+  {% if router.loopback and not neighbor.noLoopback %}
  neighbor {{neighbor.ipAdd}} update-source {{router.loopback.name}}
   {% endif %}
  {%endfor%}
