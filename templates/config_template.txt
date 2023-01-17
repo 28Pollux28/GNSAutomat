@@ -55,6 +55,12 @@ exit-address-family
 address-family ipv6 unicast
 {% for neighbor in router.bgp.neighbors %}
  neighbor {{neighbor.ipAdd}} activate
+ {% for routeMapIn in neighbor.routeMapIns %}
+ neighbor {{neighbor.ipAdd}} route-map {{routeMapIn}} in
+  {% endfor %}
+  {% for routeMapOut in neighbor.routeMapOuts %}
+ neighbor {{neighbor.ipAdd}} route-map {{routeMapOut}} out
+  {% endfor %}
 {%endfor%}
 {% for network in router.bgp.networks %}
  network {{network.add}}/{{network.prefix}}
@@ -74,6 +80,49 @@ ipv6 router ospf {{router.ospf.process}}
  passive-interface {{interface}}
  {% endfor %}
 {% endif %}
+{% if router.asPathAccessLists %}
+{% for asPathAccessList in router.asPathAccessLists %}
+ip as-path access-list {{asPathAccessList.name}} {{asPathAccessList.action}} {{asPathAccessList.as_path}}
+{% endfor %}
+{% endif %}
+{% if router.prefixLists %}
+{% for prefixList in router.prefixLists %}
+ipv6 access-list {{prefixList.name}}
+{% for prefix in prefixList.prefixes %}
+ {{prefixList.action}} ipv6 {{prefix}} any
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if router.routeMapIns %}
+{% for routeMap in router.routeMapIns %}
+route-map {{routeMap.name}} {{routeMap.action}} {{routeMap.sequence}}
+  {% if routeMap.match == "as-path" %}
+    match as-path {{routeMap.asPathAccessList}}
+  {% endif %}
+  {% if routeMap.match == "ipv6 address" %}
+    match ipv6 address {{routeMap.ipv6AccessList}}
+  {% endif %}
+  {% for set in routeMap.sets %}
+    set {{set}}
+  {% endfor %}
+route-map {{routeMap.name}} permit 20
+{% endfor%}
+{%endif%}
+{% if router.routeMapOuts %}
+{% for routeMap in router.routeMapOuts %}
+route-map {{routeMap.name}} {{routeMap.action}} {{routeMap.sequence}}
+  {% if routeMap.match == "as-path" %}
+    match as-path {{routeMap.asPathAccessList}}
+  {% endif %}
+  {% if routeMap.match == "ipv6 address" %}
+    match ipv6 address {{routeMap.ipv6AccessList}}
+  {% endif %}
+  {% for set in routeMap.sets %}
+    set {{set}}
+  {% endfor %}
+route-map {{routeMap.name}} permit 20
+{% endfor%}
+{%endif%}
 control-plane
 line con 0
 exec-timeout 0 0

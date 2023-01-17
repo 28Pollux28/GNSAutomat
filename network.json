@@ -499,7 +499,27 @@
             "ospfArea": "0",
             "ospfCost": "1"
         },
-        "relationship": "peer"
+        "relationship": "peer",
+        "filter1":{
+            "in": {
+                "prefixes": [
+                ]
+            },
+            "out": {
+                "prefixes": [
+                ]
+            }
+        },
+        "filter2":{
+            "in": {
+                "prefixes": [
+                ]
+            },
+            "out": {
+                "prefixes": [
+                ]
+            }
+        }
       },
       {
         "firstAS": "100",
@@ -514,7 +534,31 @@
             "ospfArea": "0",
             "ospfCost": "1"
         },
-        "relationship": "peer"
+        "relationship": "business",
+        "filter1":{
+            "in": {
+                "prefixes": [
+                    "2020:100:2:1::/64"
+                ]
+            },
+            "out": {
+                "prefixes": [
+                    "2020:100:1:1::/64"
+                ]
+            }
+        },
+        "filter2":{
+            "in": {
+                "prefixes": [
+                    "2020:100:1:5::/64"
+                ]
+            },
+            "out": {
+                "prefixes": [
+                    "2020:100:2:5::/64"
+                ]
+            }
+        }
       }
     ]
   },
