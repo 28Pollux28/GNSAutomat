@@ -1,5 +1,8 @@
+import asyncio
 import json
 import os
+
+import telnetlib
 
 from models import Router, Interface, Igp, Neighbor, Network, AdjRib, RouteMap, AsPathAccessList, PrefixList
 
@@ -266,8 +269,6 @@ def handle_network(network):
 
 
 
-
-
 if __name__ == '__main__':
     environment = Environment(loader=FileSystemLoader('templates/'), trim_blocks = True, lstrip_blocks = True)
     template = environment.get_template('config_template.txt')
@@ -286,4 +287,19 @@ if __name__ == '__main__':
             f2 = open(real_path, "w")
             f2.write(template.render(router=router))
             f2.close()
+            f = open("config/" + router.hostname + ".cfg", "w")
+            f.write(template.render(router=router))
+            f.close()
+            tn = telnetlib.Telnet("localhost", load['routerMapTelnet'][router.hostname])
+            # tn.read_until(b"Press")
+            tn.write(b"\r\n")
+            tn.write(b"enable\r\n")
+            tn.write(b"conf t\r\n")
+            tn.write(template.render(router=router).encode('ascii'))
+            tn.write(b"\r\n")
+            tn.write(b"copy running-config startup-config\r\n")
+            tn.close()
+
     f.close()
+
+
