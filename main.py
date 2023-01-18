@@ -155,7 +155,7 @@ def handle_network(network):
                 routeMapIn = RouteMap()
                 routeMapIn.name = "routeMapIn"
                 routeMapIn.action = "permit"
-                routeMapIn.sequence = 10
+                routeMapIn.sequence = 15
                 routeMapIn.match = "as-path"
                 routeMapIn.asPathAccessList = str(link['secondAS'])
                 routeMapIn.sets= []
