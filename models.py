@@ -19,3 +19,5 @@ class AsPathAccessList:
     pass
 class PrefixList:
     pass
+class Community:
+    pass

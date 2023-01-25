@@ -60,7 +60,10 @@ address-family ipv6 unicast
   {% endif %}
   {% if neighbor.routeMapOut %}
  neighbor {{neighbor.ipAdd}} route-map {{neighbor.routeMapOut}} out
-    {% endif %}
+  {% endif %}
+  {% if neighbor.sendCommunity %}
+ neighbor {{neighbor.ipAdd}} send-community
+  {% endif %}
 {%endfor%}
 {% for network in router.bgp.networks %}
  network {{network.add}}/{{network.prefix}}
@@ -106,9 +109,6 @@ route-map {{routeMap.name}} {{routeMap.action}} {{routeMap.sequence}}
  set {{set}}
   {% endfor %}
 {% endfor%}
-{% if router.routeMapIns|length > 0 %}
-route-map routeMapIn permit 20
-{%endif%}
 {%endif%}
 {% if router.routeMapOuts %}
 {% for routeMap in router.routeMapOuts %}
@@ -119,14 +119,18 @@ route-map {{routeMap.name}} {{routeMap.action}} {{routeMap.sequence}}
   {% if routeMap.match == "ipv6 address" %}
  match ipv6 address {{routeMap.ipv6AccessList}}
   {% endif %}
+  {% if routeMap.match == "community" %}
+ match community {{routeMap.community}}
+  {% endif %}
   {% for set in routeMap.sets %}
  set {{set}}
   {% endfor %}
 {% endfor%}
-{% if router.routeMapOuts|length > 0 %}
- route-map routeMapOut permit 20
 {%endif%}
-{%endif%}
+ip bgp-community new-format
+{% for community in router.communities %}
+ip community-list {{community.name}} {{community.action}} {{community.community}}
+{% endfor %}
 control-plane
 line con 0
 exec-timeout 0 0

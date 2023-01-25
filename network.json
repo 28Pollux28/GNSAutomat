@@ -478,6 +478,82 @@
           }
         }
       ]
+    },
+    {
+      "number": "400",
+      "IpRange": {
+        "start": "2020:100:4:",
+        "prefix": "64"
+      },
+      "IpLoopbackRange": {
+        "start": "fe01:4:",
+        "prefix": "64"
+      },
+      "igp": {
+        "type": "ospf",
+        "routerID": "4.4.4."
+      },
+      "bgp": {
+        "routerID": "4.4.4."
+      },
+      "baseHostname": "R444",
+      "routers": [
+        {
+          "id": "1",
+          "connections":[
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "as",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "number": "500",
+      "IpRange": {
+        "start": "2020:100:5:",
+        "prefix": "64"
+      },
+      "IpLoopbackRange": {
+        "start": "fe01:5:",
+        "prefix": "64"
+      },
+      "igp": {
+        "type": "ospf",
+        "routerID": "5.5.5."
+      },
+      "bgp": {
+        "routerID": "5.5.5."
+      },
+      "baseHostname": "R555",
+      "routers": [
+        {
+          "id": "1",
+          "connections":[
+
+          ],
+          "bgp": {
+            "out": {
+              "networks": "as",
+              "filter": {
+              }
+            },
+            "in": {
+              "filter": {
+              }
+            }
+          }
+        }
+      ]
     }
   ],
   "ASLink":{
@@ -559,6 +635,88 @@
                 ]
             }
         }
+      },
+      {
+        "firstAS": "400",
+        "firstRouter": "1",
+        "firstInterface":{
+            "id": "1",
+            "ospfArea": "0",
+            "ospfCost": "1"
+        },
+        "secondAS": "100",
+        "secondRouter": "7",
+        "secondInterface":{
+            "id": "4",
+            "ospfArea": "0",
+            "ospfCost": "1"
+        },
+        "relationship": "business",
+        "filter1":{
+            "in": {
+                "prefixes": [
+                  "2020:100:1:1::/64"
+                ]
+            },
+            "out": {
+                "prefixes": [
+
+                ]
+            }
+        },
+        "filter2":{
+            "in": {
+                "prefixes": [
+
+                ]
+            },
+            "out": {
+                "prefixes": [
+                    "2020:100:1:5::/64"
+                ]
+            }
+        }
+      },
+      {
+        "firstAS": "500",
+        "firstRouter": "1",
+        "firstInterface":{
+            "id": "2",
+            "ospfArea": "0",
+            "ospfCost": "1"
+        },
+        "secondAS": "100",
+        "secondRouter": "1",
+        "secondInterface":{
+            "id": "3",
+            "ospfArea": "0",
+            "ospfCost": "1"
+        },
+        "relationship": "peer",
+        "filter1":{
+            "in": {
+                "prefixes": [
+
+                ]
+            },
+            "out": {
+                "prefixes": [
+
+                ]
+            }
+        },
+        "filter2":{
+            "in": {
+                "prefixes": [
+
+                ]
+            },
+            "out": {
+                "prefixes": [
+
+                ]
+            }
+        }
       }
     ]
   },
@@ -576,7 +734,9 @@
     "R2224": 10,
     "R2225": 12,
     "R2226": 13,
-    "R2227": 14
+    "R2227": 14,
+    "R4441": 16,
+    "R5551": 17
   },
   "routerMapTelnet": {
     "R1111": 5004,
@@ -592,6 +752,8 @@
     "R2224": 5013,
     "R2225": 5021,
     "R2226": 5023,
-    "R2227": 5025
+    "R2227": 5025,
+    "R4441": 5001,
+    "R5551": 5002
   }
 }

@@ -4,7 +4,7 @@ import os
 
 import telnetlib
 
-from models import Router, Interface, Igp, Neighbor, Network, AdjRib, RouteMap, AsPathAccessList, PrefixList
+from models import Router, Interface, Igp, Neighbor, Network, AdjRib, RouteMap, AsPathAccessList, PrefixList, Community
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -86,6 +86,7 @@ def handle_network(network):
                     neighbor = Neighbor()
                     neighbor.remote_as = As['number']
                     neighbor.ipAdd = As['IpLoopbackRange']['start']+hex(int(routeur['id']))[2:]+"::"+hex(int(routeur['id']))[2:]
+                    neighbor.sendCommunity = True
                     bgp.neighbors.append(neighbor)
             routerObj.bgp = bgp
             routerAsList[routerObj.id] = routerObj
@@ -140,29 +141,37 @@ def handle_network(network):
         neighb1.noLoopback = True
         # neighb1.routeMapIns = []
         # neighb1.routeMapOuts = []
-        ASList[link['firstAS']][link['firstRouter']].routeMapIns = []
-        ASList[link['firstAS']][link['firstRouter']].routeMapOuts = []
+        if not hasattr(ASList[link['firstAS']][link['firstRouter']],"routeMapIns"):
+            ASList[link['firstAS']][link['firstRouter']].routeMapIns = []
+        if not hasattr(ASList[link['firstAS']][link['firstRouter']],"routeMapOuts"):
+            ASList[link['firstAS']][link['firstRouter']].routeMapOuts = []
         neighb2 = Neighbor()
         neighb2.remote_as = link['secondAS']
         neighb2.ipAdd = add2
         neighb2.noLoopback = True
         # neighb2.routeMapIns = []
         # neighb2.routeMapOuts = []
-        ASList[link['secondAS']][link['secondRouter']].routeMapIns = []
-        ASList[link['secondAS']][link['secondRouter']].routeMapOuts = []
+        if not hasattr(ASList[link['secondAS']][link['secondRouter']],"routeMapIns"):
+            ASList[link['secondAS']][link['secondRouter']].routeMapIns = []
+        if not hasattr(ASList[link['secondAS']][link['secondRouter']],"routeMapOuts"):
+            ASList[link['secondAS']][link['secondRouter']].routeMapOuts = []
+        if not hasattr(ASList[link['firstAS']][link['firstRouter']], "communities"):
+            ASList[link['firstAS']][link['firstRouter']].communities = []
+        if not hasattr(ASList[link['secondAS']][link['secondRouter']],"communities"):
+            ASList[link['secondAS']][link['secondRouter']].communities = []
         match link['relationship']:
             case "business":
-                print("test")
-                neighb2.routeMapIn = "mapLocPrefClient"
+                # neighb2.routeMapIn = "mapLocPrefClient"
 
                 routeMapIn = RouteMap()
-                routeMapIn.name = "routeMapIn"
+                routeMapIn.name = "routeMapIn"+str(link['secondAS'])+str(link['secondRouter'])
                 routeMapIn.action = "permit"
                 routeMapIn.sequence = 15
                 routeMapIn.match = "as-path"
                 routeMapIn.asPathAccessList = str(link['secondAS'])
                 routeMapIn.sets= []
                 routeMapIn.sets.append("local-preference 250")
+                routeMapIn.sets.append("community "+link['firstAS']+":42")
                 ASList[link['firstAS']][link['firstRouter']].routeMapIns.append(routeMapIn)
                 ASList[link['firstAS']][link['firstRouter']].asPathAccessLists = []
                 asPathAccessList = AsPathAccessList()
@@ -170,21 +179,87 @@ def handle_network(network):
                 asPathAccessList.action = "permit"
                 asPathAccessList.as_path = "_"+str(link['secondAS'])+"_"
                 ASList[link['firstAS']][link['firstRouter']].asPathAccessLists.append(asPathAccessList)
-                neighb2.routeMapIn= "routeMapIn"
+                neighb2.routeMapIn= "routeMapIn"+str(link['secondAS'])+str(link['secondRouter'])
+
+                routeMapOut = RouteMap()
+                routeMapOut.name = "routeMapOut"+str(link['firstAS'])+str(link['firstRouter'])
+                routeMapOut.action = "permit"
+                routeMapOut.sequence = 15
+                routeMapOut.match = "community"
+                routeMapOut.community = str(link['secondAS'])+":42"
+                routeMapOut.sets = []
+
+                community = Community()
+                community.name = str(link['secondAS'])+":42"
+                community.action = "permit"
+                community.community = str(link['secondAS'])+":42"
+                ASList[link['secondAS']][link['secondRouter']].communities.append(community)
+                ASList[link['secondAS']][link['secondRouter']].routeMapOuts.append(routeMapOut)
+                neighb1.routeMapOut = "routeMapOut"+str(link['firstAS'])+str(link['firstRouter'])
+                routeMapOutDeny = RouteMap()
+                routeMapOutDeny.name = "routeMapOut" + str(link['firstAS']) + str(link['firstRouter'])
+                routeMapOutDeny.action = "deny"
+                routeMapOutDeny.sequence = 20
+                ASList[link['secondAS']][link['secondRouter']].routeMapOuts.append(routeMapOutDeny)
+            case "peer":
+                routeMapOut = RouteMap()
+                routeMapOut.name = "routeMapOut" + str(link['firstAS']) + str(link['firstRouter'])
+                routeMapOut.action = "permit"
+                routeMapOut.sequence = 15
+                routeMapOut.match = "community"
+                routeMapOut.community = str(link['secondAS']) + ":42"
+                routeMapOut.sets = []
+
+                community = Community()
+                community.name = str(link['secondAS']) + ":42"
+                community.action = "permit"
+                community.community = str(link['secondAS']) + ":42"
+                ASList[link['secondAS']][link['secondRouter']].communities.append(community)
+                ASList[link['secondAS']][link['secondRouter']].routeMapOuts.append(routeMapOut)
+                neighb1.routeMapOut = "routeMapOut" + str(link['firstAS']) + str(link['firstRouter'])
+                routeMapOutDeny = RouteMap()
+                routeMapOutDeny.name = "routeMapOut" + str(link['firstAS']) + str(link['firstRouter'])
+                routeMapOutDeny.action = "deny"
+                routeMapOutDeny.sequence = 20
+                ASList[link['secondAS']][link['secondRouter']].routeMapOuts.append(routeMapOutDeny)
+
+                routeMapOut = RouteMap()
+                routeMapOut.name = "routeMapOut" + str(link['secondAS']) + str(link['secondRouter'])
+                routeMapOut.action = "permit"
+                routeMapOut.sequence = 15
+                routeMapOut.match = "community"
+                routeMapOut.community = str(link['firstAS']) + ":42"
+                routeMapOut.sets = []
+
+                community = Community()
+                community.name = str(link['firstAS']) + ":42"
+                community.action = "permit"
+                community.community = str(link['firstAS']) + ":42"
+                ASList[link['firstAS']][link['firstRouter']].communities.append(community)
+                ASList[link['firstAS']][link['firstRouter']].routeMapOuts.append(routeMapOut)
+                neighb2.routeMapOut = "routeMapOut" + str(link['secondAS']) + str(link['secondRouter'])
+                routeMapOutDeny = RouteMap()
+                routeMapOutDeny.name = "routeMapOut" + str(link['secondAS']) + str(link['secondRouter'])
+                routeMapOutDeny.action = "deny"
+                routeMapOutDeny.sequence = 20
+                ASList[link['firstAS']][link['firstRouter']].routeMapOuts.append(routeMapOutDeny)
+
 
 
         fil1 = link['filter1']
         fil1In = fil1['in']
         fil1Out = fil1['out']
-        ASList[link['firstAS']][link['firstRouter']].prefixLists = []
+        if not hasattr(ASList[link['firstAS']][link['firstRouter']],"prefixLists"):
+            ASList[link['firstAS']][link['firstRouter']].prefixLists = []
 
         fil2 = link['filter2']
         fil2In = fil2['in']
         fil2Out = fil2['out']
-        ASList[link['secondAS']][link['secondRouter']].prefixLists = []
+        if not hasattr(ASList[link['secondAS']][link['secondRouter']], "prefixLists"):
+            ASList[link['secondAS']][link['secondRouter']].prefixLists = []
 
         prefixList = PrefixList()
-        prefixList.name = "prefixListIn"
+        prefixList.name = "prefixListIn"+str(link['secondAS'])+str(link['secondRouter'])
         prefixList.action = "permit"
         prefixList.prefixes = []
         for prefix in fil1In['prefixes']:
@@ -192,16 +267,23 @@ def handle_network(network):
         if len(prefixList.prefixes) > 0:
             ASList[link['firstAS']][link['firstRouter']].prefixLists.append(prefixList)
             routeMapFilter1In = RouteMap()
-            routeMapFilter1In.name = "routeMapIn"
+            routeMapFilter1In.name = "routeMapIn"+str(link['secondAS'])+str(link['secondRouter'])
             routeMapFilter1In.action = "deny"
-            routeMapFilter1In.sequence = 10
+            routeMapFilter1In.sequence = 5
             routeMapFilter1In.match = "ipv6 address"
-            routeMapFilter1In.ipv6AccessList = "prefixListIn"
+            routeMapFilter1In.ipv6AccessList = "prefixListIn"+str(link['secondAS'])+str(link['secondRouter'])
             ASList[link['firstAS']][link['firstRouter']].routeMapIns.append(routeMapFilter1In)
-            neighb2.routeMapIn = "routeMapIn"
+            neighb2.routeMapIn = "routeMapIn"+str(link['secondAS'])+str(link['secondRouter'])
+            routeMapIn = RouteMap()
+            routeMapIn.name = "routeMapIn" + str(link['secondAS']) + str(link['secondRouter'])
+            routeMapIn.action = "permit"
+            routeMapIn.sequence = 20
+            ASList[link['firstAS']][link['firstRouter']].routeMapIns.append(routeMapIn)
+
+
 
         prefixList = PrefixList()
-        prefixList.name = "prefixListOut"
+        prefixList.name = "prefixListOut"+str(link['secondAS'])+str(link['secondRouter'])
         prefixList.action = "permit"
         prefixList.prefixes = []
         for prefix in fil1Out['prefixes']:
@@ -209,16 +291,41 @@ def handle_network(network):
         if len(prefixList.prefixes) > 0:
             ASList[link['firstAS']][link['firstRouter']].prefixLists.append(prefixList)
             routeMapFilter1Out = RouteMap()
-            routeMapFilter1Out.name = "routeMapOut"
+            routeMapFilter1Out.name = "routeMapOut"+str(link['secondAS'])+str(link['secondRouter'])
             routeMapFilter1Out.action = "deny"
-            routeMapFilter1Out.sequence = 10
+            routeMapFilter1Out.sequence = 5
             routeMapFilter1Out.match = "ipv6 address"
-            routeMapFilter1Out.ipv6AccessList = "prefixListOut"
+            routeMapFilter1Out.ipv6AccessList = "prefixListOut"+str(link['secondAS'])+str(link['secondRouter'])
             ASList[link['firstAS']][link['firstRouter']].routeMapOuts.append(routeMapFilter1Out)
-            neighb2.routeMapOut = "routeMapOut"
+            neighb2.routeMapOut = "routeMapOut"+str(link['secondAS'])+str(link['secondRouter'])
+            if link['relationship']=="business":
+                routeMapOutDeny = RouteMap()
+                routeMapOutDeny.name = "routeMapOut" + str(link['secondAS']) + str(link['secondRouter'])
+                routeMapOutDeny.action = "permit"
+                routeMapOutDeny.sequence = 20
+                ASList[link['firstAS']][link['firstRouter']].routeMapOuts.append(routeMapOutDeny)
+
 
         prefixList = PrefixList()
-        prefixList.name = "prefixListIn"
+        prefixList.name = "prefixListOutAS" + str(link['secondAS']) + str(link['secondRouter'])
+        prefixList.action = "permit"
+        prefixList.prefixes = []
+        ASList[link['firstAS']][link['firstRouter']].prefixLists.append(prefixList)
+        for AS in network['AS']:
+            if AS['number'] == link['firstAS']:
+                prefixList.prefixes.append(AS['IpRange']['start']+":/"+str(int(AS['IpRange']['prefix'])-16))
+
+        routeMapOut = RouteMap()
+        routeMapOut.name = "routeMapOut" + str(link['secondAS']) + str(link['secondRouter'])
+        routeMapOut.action = "permit"
+        routeMapOut.sequence = 10
+        routeMapOut.match = "ipv6 address"
+        routeMapOut.ipv6AccessList = "prefixListOutAS" + str(link['secondAS']) + str(link['secondRouter'])
+        ASList[link['firstAS']][link['firstRouter']].routeMapOuts.append(routeMapOut)
+        neighb2.routeMapOut = "routeMapOut" + str(link['secondAS']) + str(link['secondRouter'])
+
+        prefixList = PrefixList()
+        prefixList.name = "prefixListIn"+str(link['firstAS'])+str(link['firstRouter'])
         prefixList.action = "permit"
         prefixList.prefixes = []
         for prefix in fil2In['prefixes']:
@@ -226,16 +333,21 @@ def handle_network(network):
         if(len(prefixList.prefixes) > 0):
             ASList[link['secondAS']][link['secondRouter']].prefixLists.append(prefixList)
             routeMapFilter2In = RouteMap()
-            routeMapFilter2In.name = "routeMapIn"
+            routeMapFilter2In.name = "routeMapIn"+str(link['firstAS'])+str(link['firstRouter'])
             routeMapFilter2In.action = "deny"
-            routeMapFilter2In.sequence = 10
+            routeMapFilter2In.sequence = 5
             routeMapFilter2In.match = "ipv6 address"
-            routeMapFilter2In.ipv6AccessList = "prefixListIn"
+            routeMapFilter2In.ipv6AccessList = "prefixListIn"+str(link['firstAS'])+str(link['firstRouter'])
             ASList[link['secondAS']][link['secondRouter']].routeMapIns.append(routeMapFilter2In)
-            neighb1.routeMapIn = "routeMapIn"
+            neighb1.routeMapIn = "routeMapIn"+str(link['firstAS'])+str(link['firstRouter'])
+            routeMapIn = RouteMap()
+            routeMapIn.name = "routeMapIn" + str(link['firstAS']) + str(link['firstRouter'])
+            routeMapIn.action = "permit"
+            routeMapIn.sequence = 20
+            ASList[link['secondAS']][link['secondRouter']].routeMapIns.append(routeMapIn)
 
         prefixList = PrefixList()
-        prefixList.name = "prefixListOut"
+        prefixList.name = "prefixListOut"+str(link['firstAS'])+str(link['firstRouter'])
         prefixList.action = "permit"
         prefixList.prefixes = []
         for prefix in fil2Out['prefixes']:
@@ -243,13 +355,32 @@ def handle_network(network):
         if(len(prefixList.prefixes) > 0):
             ASList[link['secondAS']][link['secondRouter']].prefixLists.append(prefixList)
             routeMapFilter2Out = RouteMap()
-            routeMapFilter2Out.name = "routeMapOut"
+            routeMapFilter2Out.name = "routeMapOut"+str(link['firstAS'])+str(link['firstRouter'])
             routeMapFilter2Out.action = "deny"
-            routeMapFilter2Out.sequence = 10
+            routeMapFilter2Out.sequence = 5
             routeMapFilter2Out.match = "ipv6 address"
-            routeMapFilter2Out.ipv6AccessList = "prefixListOut"
+            routeMapFilter2Out.ipv6AccessList = "prefixListOut"+str(link['firstAS'])+str(link['firstRouter'])
             ASList[link['secondAS']][link['secondRouter']].routeMapOuts.append(routeMapFilter2Out)
-            neighb1.routeMapOut = "routeMapOut"
+            neighb1.routeMapOut = "routeMapOut" + str(link['firstAS']) + str(link['firstRouter'])
+
+        prefixList = PrefixList()
+        prefixList.name = "prefixListOutAS" + str(link['firstAS']) + str(link['firstRouter'])
+        prefixList.action = "permit"
+        prefixList.prefixes = []
+        ASList[link['secondAS']][link['secondRouter']].prefixLists.append(prefixList)
+        for AS in network['AS']:
+            if AS['number'] == link['secondAS']:
+                prefixList.prefixes.append(AS['IpRange']['start'] + ":/" + str(int(AS['IpRange']['prefix']) - 16))
+
+        routeMapOut = RouteMap()
+        routeMapOut.name = "routeMapOut" + str(link['firstAS']) + str(link['firstRouter'])
+        routeMapOut.action = "permit"
+        routeMapOut.sequence = 10
+        routeMapOut.match = "ipv6 address"
+        routeMapOut.ipv6AccessList = "prefixListOutAS" + str(link['firstAS']) + str(link['firstRouter'])
+        ASList[link['secondAS']][link['secondRouter']].routeMapOuts.append(routeMapOut)
+        neighb1.routeMapOut = "routeMapOut" + str(link['firstAS']) + str(link['firstRouter'])
+
 
 
         ASList[link['firstAS']][link['firstRouter']].bgp.neighbors.append(neighb2)
@@ -278,6 +409,8 @@ if __name__ == '__main__':
     for AS in ASList.values():
         for router in AS.values():
             print(router.hostname)
+            if router.hostname == "R1117":
+                print(router.routeMapIns)
             path = "C:/Users/lemai/GNS3/projects/ProjetGNS3/project-files/dynamips"
             cfg_file = 'i' + str(load['routerMap'][router.hostname]) + "_startup-config.cfg"
             real_path=""
@@ -290,15 +423,15 @@ if __name__ == '__main__':
             f = open("config/" + router.hostname + ".cfg", "w")
             f.write(template.render(router=router))
             f.close()
-            tn = telnetlib.Telnet("localhost", load['routerMapTelnet'][router.hostname])
-            # tn.read_until(b"Press")
-            tn.write(b"\r\n")
-            tn.write(b"enable\r\n")
-            tn.write(b"conf t\r\n")
-            tn.write(template.render(router=router).encode('ascii'))
-            tn.write(b"\r\n")
-            tn.write(b"copy running-config startup-config\r\n")
-            tn.close()
+            # tn = telnetlib.Telnet("localhost", load['routerMapTelnet'][router.hostname])
+            # # tn.read_until(b"Press")
+            # tn.write(b"\r\n")
+            # tn.write(b"enable\r\n")
+            # tn.write(b"conf t\r\n")
+            # tn.write(template.render(router=router).encode('ascii'))
+            # tn.write(b"\r\n")
+            # tn.write(b"copy running-config startup-config\r\n")
+            # tn.close()
 
     f.close()
 
